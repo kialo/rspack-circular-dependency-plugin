@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
-        "noEmit": true,
+        "declaration": true,
+        "outDir": "./out",
         "target": "es2015",
         "module": "CommonJS",
         "moduleResolution": "Node",

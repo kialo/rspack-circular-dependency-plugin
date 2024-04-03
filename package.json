@@ -16,11 +16,14 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "build": "tsc --emitDeclarationOnly"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "out/index.d.ts"
   ],
+  "types": "out/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kialo/rspack-circular-dependency-plugin.git"
