@@ -1,5 +1,5 @@
-import b from './b'
+import b from "./b";
 
-var a = { name: 'a', dep: b && b.name }
+var a = { name: "a", dep: b && b.name };
 
-export default a
+export default a;

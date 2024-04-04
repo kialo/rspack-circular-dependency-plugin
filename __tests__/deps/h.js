@@ -1,1 +1,1 @@
-require('./i');
+require("./i");

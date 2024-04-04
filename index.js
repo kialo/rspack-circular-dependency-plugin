@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * @typedef {Record<string, import('@rspack/core').StatsModule>} ModuleMap
@@ -14,13 +14,13 @@
  * @typedef {Required<Omit<Options, 'onStart' | 'onEnd' | 'onDetected'>> & Pick<Options, 'onStart' | 'onEnd' | 'onDetected'>} FullOptions
  */
 
-const BASE_ERROR = 'Circular dependency detected:\r\n';
-const PluginTitle = 'RspackCircularDependencyPlugin';
+const BASE_ERROR = "Circular dependency detected:\r\n";
+const PluginTitle = "RspackCircularDependencyPlugin";
 
 /**
  * @param {string} path
  */
-const normalizePath = (path) => path.replace(/^\.\//, '');
+const normalizePath = (path) => path.replace(/^\.\//, "");
 
 class RspackCircularDependencyPlugin {
     /**
@@ -55,9 +55,9 @@ class RspackCircularDependencyPlugin {
                             !module.orphan &&
                             !!module.id &&
                             module.name.match(this.options.include) &&
-                            !module.name.match(this.options.exclude)
+                            !module.name.match(this.options.exclude),
                     )
-                    .map((module) => [module.id, module])
+                    .map((module) => [module.id, module]),
             );
 
             for (const module of Object.keys(modulesById)) {
@@ -66,13 +66,16 @@ class RspackCircularDependencyPlugin {
                 if (maybeCyclicalPathsList) {
                     if (this.options.onDetected) {
                         try {
-                            this.options.onDetected({ paths: maybeCyclicalPathsList, compilation });
+                            this.options.onDetected({
+                                paths: maybeCyclicalPathsList,
+                                compilation,
+                            });
                         } catch (/** @type {any} **/ err) {
                             compilation.errors.push(err);
                         }
                     } else {
                         // mark warnings or errors on rspack compilation
-                        const error = new Error(BASE_ERROR.concat(maybeCyclicalPathsList.join(' -> ')));
+                        const error = new Error(BASE_ERROR.concat(maybeCyclicalPathsList.join(" -> ")));
                         if (this.options.failOnError) {
                             compilation.errors.push(error);
                         } else {
@@ -106,7 +109,7 @@ class RspackCircularDependencyPlugin {
                 continue;
             }
 
-            if (this.options.allowAsyncCycles && reason.type === 'dynamic import') {
+            if (this.options.allowAsyncCycles && reason.type === "dynamic import") {
                 continue;
             }
 

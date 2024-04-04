@@ -1,43 +1,44 @@
 {
-  "name": "rspack-circular-dependency-plugin",
-  "main": "index.js",
-  "devDependencies": {
-    "@rspack/core": "^0.5.9",
-    "@types/memory-fs": "^0.3.7",
-    "jest": "^29.7.0",
-    "memory-fs": "^0.5.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.3"
-  },
-  "description": "Detect modules with circular dependencies when bundling with rspack.",
-  "version": "0.1.0",
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "scripts": {
-    "test": "jest",
-    "lint": "tsc --noEmit",
-    "build": "tsc --emitDeclarationOnly"
-  },
-  "files": [
-    "index.js",
-    "out/index.d.ts"
-  ],
-  "types": "out/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kialo/rspack-circular-dependency-plugin.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kialo/rspack-circular-dependency-plugin/issues"
-  },
-  "homepage": "https://github.com/kialo/rspack-circular-dependency-plugin#readme",
-  "jest": {
-    "testMatch": [
-      "**/?(*.)(spec|test).js?(x)"
-    ]
-  },
-  "packageManager": "yarn@4.1.1"
+    "name": "rspack-circular-dependency-plugin",
+    "main": "index.js",
+    "devDependencies": {
+        "@rspack/core": "^0.5.9",
+        "@types/memory-fs": "^0.3.7",
+        "jest": "^29.7.0",
+        "memory-fs": "^0.5.0",
+        "prettier": "^3.2.5",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.4.3"
+    },
+    "description": "Detect modules with circular dependencies when bundling with rspack.",
+    "version": "0.1.0",
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "scripts": {
+        "test": "jest",
+        "lint": "tsc --noEmit",
+        "build": "tsc --emitDeclarationOnly"
+    },
+    "files": [
+        "index.js",
+        "out/index.d.ts"
+    ],
+    "types": "out/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kialo/rspack-circular-dependency-plugin.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/kialo/rspack-circular-dependency-plugin/issues"
+    },
+    "homepage": "https://github.com/kialo/rspack-circular-dependency-plugin#readme",
+    "jest": {
+        "testMatch": [
+            "**/?(*.)(spec|test).js?(x)"
+        ]
+    },
+    "packageManager": "yarn@4.1.1"
 }

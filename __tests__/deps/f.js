@@ -1,1 +1,1 @@
-require('./g');
+require("./g");

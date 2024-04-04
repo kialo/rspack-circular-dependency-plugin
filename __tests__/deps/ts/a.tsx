@@ -1,4 +1,4 @@
-import b from './b';
+import b from "./b";
 
 let a = 1;
 module.exports = a;

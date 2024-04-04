@@ -1,1 +1,1 @@
-require.context('./context/', false, /.*/);
+require.context("./context/", false, /.*/);
