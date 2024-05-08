@@ -75,11 +75,11 @@ class RspackCircularDependencyPlugin {
                         }
                     } else {
                         // mark warnings or errors on rspack compilation
-                        const error = new Error(BASE_ERROR.concat(maybeCyclicalPathsList.join(" -> ")));
+                        const message = BASE_ERROR.concat(maybeCyclicalPathsList.join(" -> "));
                         if (this.options.failOnError) {
-                            compilation.errors.push(error);
+                            compilation.errors.push(new Error(message));
                         } else {
-                            compilation.warnings.push(error);
+                            compilation.warnings.push({ message, formatted: message });
                         }
                     }
                 }
@@ -110,7 +110,7 @@ class RspackCircularDependencyPlugin {
                 continue;
             }
 
-            if (this.options.allowAsyncCycles && reason.type === "dynamic import") {
+            if (this.options.allowAsyncCycles && reason.type?.match(/dynamic import|import\(\)/)) {
                 continue;
             }
 
