@@ -18,9 +18,9 @@ const BASE_ERROR = "Circular dependency detected:\r\n";
 const PluginTitle = "RspackCircularDependencyPlugin";
 
 /**
- * @param {string} path
+ * @param {string|undefined} path
  */
-const normalizePath = (path) => path.replace(/^\.\//, "");
+const normalizePath = (path) => path?.replace(/^\.\//, "");
 
 class RspackCircularDependencyPlugin {
     /**
@@ -53,7 +53,7 @@ class RspackCircularDependencyPlugin {
                     .filter(
                         (module) =>
                             !module.orphan &&
-                            !!module.id &&
+                            !!module.name &&
                             module.name.match(this.options.include) &&
                             !module.name.match(this.options.exclude),
                     )
@@ -79,7 +79,7 @@ class RspackCircularDependencyPlugin {
                         if (this.options.failOnError) {
                             compilation.errors.push(new Error(message));
                         } else {
-                            compilation.warnings.push({ message, formatted: message });
+                            compilation.warnings.push({ name: "CircularDependencyWarning", message });
                         }
                     }
                 }
@@ -99,7 +99,7 @@ class RspackCircularDependencyPlugin {
      */
     isCyclic(initialModule, currentModule, modulesById, seenModules = {}) {
         // Add the current module to the seen modules cache
-        const moduleName = modulesById[currentModule].name;
+        const currentModuleName = modulesById[currentModule]?.name;
         seenModules[currentModule] = true;
 
         // Iterate over the current modules dependencies
@@ -115,9 +115,12 @@ class RspackCircularDependencyPlugin {
             }
 
             if (reasonModule.id in seenModules) {
-                if (reasonModule.id === initialModule) {
+                if (reasonModule.id === initialModule && currentModule !== initialModule) {
                     // Initial module has a circular dependency
-                    return [normalizePath(reasonModule.name), normalizePath(moduleName)];
+                    return [
+                        normalizePath(reasonModule?.name) ?? reasonModule.id,
+                        normalizePath(currentModuleName) ?? currentModule,
+                    ];
                 }
                 // Found a cycle, but not for this module
                 continue;
@@ -126,7 +129,7 @@ class RspackCircularDependencyPlugin {
             const maybeCyclicalPathsList = this.isCyclic(initialModule, reasonModule.id, modulesById, seenModules);
 
             if (maybeCyclicalPathsList) {
-                return [...maybeCyclicalPathsList, normalizePath(moduleName)];
+                return [...maybeCyclicalPathsList, normalizePath(currentModuleName) ?? currentModule];
             }
         }
     }
