@@ -1,9 +1,9 @@
-let path = require("path");
-let MemoryFS = require("memory-fs");
-let CircularDependencyPlugin = require("../index");
+const path = require("path");
+const MemoryFS = require("memory-fs");
+const CircularDependencyPlugin = require("../index");
 const webpack = require("@rspack/core");
 
-let wrapRun = (run) => {
+const wrapRun = (run) => {
     return () =>
         new Promise((resolve, reject) => {
             run((err, result) => {
@@ -15,15 +15,15 @@ let wrapRun = (run) => {
         });
 };
 
-let getWarningMessage = (stats, index) => {
+const getWarningMessage = (stats, index) => {
     return getStatsMessage(stats, index, "warnings");
 };
 
-let getErrorsMessage = (stats, index) => {
+const getErrorsMessage = (stats, index) => {
     return getStatsMessage(stats, index, "errors");
 };
 
-let getStatsMessage = (stats, index, type) => {
+const getStatsMessage = (stats, index, type) => {
     if (stats[type][index] == null) {
         return null;
     } else if (stats[type][index].message) {
@@ -42,7 +42,7 @@ describe("RspackCircularDependencyPlugin", () => {
     });
 
     it("detects circular dependencies from a -> b -> c -> b", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/a.js"),
             output: { path: "/tmp" },
@@ -50,11 +50,11 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
-        let msg0 = getWarningMessage(stats, 0);
-        let msg1 = getWarningMessage(stats, 1);
+        const msg0 = getWarningMessage(stats, 0);
+        const msg1 = getWarningMessage(stats, 1);
         expect(msg0).toContain("__tests__/deps/b.js -> __tests__/deps/c.js -> __tests__/deps/b.js");
         expect(msg0).toMatch(/Circular/);
         expect(msg1).toMatch(/b\.js/);
@@ -62,7 +62,7 @@ describe("RspackCircularDependencyPlugin", () => {
     });
 
     it("detects circular dependencies from d -> e -> f -> g -> e", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/d.js"),
             output: { path: "/tmp" },
@@ -70,11 +70,11 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
-        let msg0 = getWarningMessage(stats, 0);
-        let msg1 = getWarningMessage(stats, 1);
+        const msg0 = getWarningMessage(stats, 0);
+        const msg1 = getWarningMessage(stats, 1);
         expect(msg0).toContain(
             "__tests__/deps/e.js -> __tests__/deps/f.js -> __tests__/deps/g.js -> __tests__/deps/e.js",
         );
@@ -85,7 +85,7 @@ describe("RspackCircularDependencyPlugin", () => {
     });
 
     it("uses errors instead of warnings with failOnError", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/d.js"),
             output: { path: "/tmp" },
@@ -97,11 +97,11 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
-        let err0 = getErrorsMessage(stats, 0);
-        let err1 = getErrorsMessage(stats, 1);
+        const err0 = getErrorsMessage(stats, 0);
+        const err1 = getErrorsMessage(stats, 1);
         expect(err0).toContain(
             "__tests__/deps/e.js -> __tests__/deps/f.js -> __tests__/deps/g.js -> __tests__/deps/e.js",
         );
@@ -112,7 +112,7 @@ describe("RspackCircularDependencyPlugin", () => {
     });
 
     it("can exclude cyclical deps from being output", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/d.js"),
             output: { path: "/tmp" },
@@ -124,18 +124,18 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
-        let msg0 = getWarningMessage(stats, 0);
-        let msg1 = getWarningMessage(stats, 1);
+        const msg0 = getWarningMessage(stats, 0);
+        const msg1 = getWarningMessage(stats, 1);
         expect(msg0).toMatch(/Circular/);
         expect(msg1).toMatch(/e\.js/);
         expect(msg1).toMatch(/g\.js/);
     });
 
     it("can include only specific cyclical deps in the output", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/d.js"),
             output: { path: "/tmp" },
@@ -147,17 +147,17 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
         stats.warnings.forEach((warning) => {
-            let msg = typeof warning == "string" ? warning : warning.message;
+            const msg = typeof warning == "string" ? warning : warning.message;
             const firstFile = msg.match(/\w+\.js/)[0];
             expect(firstFile).toMatch(/f\.js/);
         });
     });
 
     it(`can handle context modules that have an undefined resource h -> i -> a -> i`, async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/h.js"),
             output: { path: "/tmp" },
@@ -165,14 +165,14 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
         expect(stats.warnings.length).toEqual(0);
         expect(stats.errors.length).toEqual(0);
     });
 
     it("allows hooking into detection cycle", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/nocycle.js"),
             output: { path: "/tmp" },
@@ -189,8 +189,8 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
         if (/^5/.test(webpack.version)) {
             expect(stats.warnings).toEqual([{ message: "started" }]);
@@ -204,7 +204,7 @@ describe("RspackCircularDependencyPlugin", () => {
     it("allows overriding all behavior with onDetected", async () => {
         let cyclesPaths;
 
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/d.js"),
             output: { path: "/tmp" },
@@ -218,7 +218,7 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
+        const runAsync = wrapRun(compiler.run.bind(compiler));
         await runAsync();
         expect(cyclesPaths).toEqual([
             "__tests__/deps/g.js",
@@ -229,7 +229,7 @@ describe("RspackCircularDependencyPlugin", () => {
     });
 
     it("detects circular dependencies from d -> e -> f -> g -> e", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/d.js"),
             output: { path: "/tmp" },
@@ -243,11 +243,11 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
-        let msg0 = getWarningMessage(stats, 0);
-        let msg1 = getWarningMessage(stats, 1);
+        const msg0 = getWarningMessage(stats, 0);
+        const msg1 = getWarningMessage(stats, 1);
         expect(msg0).toContain(
             "__tests__/deps/e.js -> __tests__/deps/f.js -> __tests__/deps/g.js -> __tests__/deps/e.js",
         );
@@ -257,7 +257,7 @@ describe("RspackCircularDependencyPlugin", () => {
     });
 
     it("can detect circular dependencies when module concatenation is used", async () => {
-        let compiler = webpack({
+        const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/module-concat-plugin-compat/index.js"),
             experiments: {
@@ -273,11 +273,11 @@ describe("RspackCircularDependencyPlugin", () => {
         });
         compiler.outputFileSystem = fs;
 
-        let runAsync = wrapRun(compiler.run.bind(compiler));
-        let stats = await runAsync();
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
 
-        let msg0 = getWarningMessage(stats, 0);
-        let msg1 = getWarningMessage(stats, 1);
+        const msg0 = getWarningMessage(stats, 0);
+        const msg1 = getWarningMessage(stats, 1);
         expect(msg0).toContain(
             "__tests__/deps/module-concat-plugin-compat/a.js -> __tests__/deps/module-concat-plugin-compat/b.js -> __tests__/deps/module-concat-plugin-compat/a.js",
         );
@@ -288,7 +288,7 @@ describe("RspackCircularDependencyPlugin", () => {
 
     describe("ignores self referencing webpack internal dependencies", () => {
         it("ignores this references", async () => {
-            let compiler = webpack({
+            const compiler = webpack({
                 mode: "development",
                 entry: path.join(__dirname, "deps", "self-referencing", "uses-this.js"),
                 output: { path: "/tmp" },
@@ -296,15 +296,15 @@ describe("RspackCircularDependencyPlugin", () => {
             });
             compiler.outputFileSystem = fs;
 
-            let runAsync = wrapRun(compiler.run.bind(compiler));
-            let stats = await runAsync();
+            const runAsync = wrapRun(compiler.run.bind(compiler));
+            const stats = await runAsync();
 
             expect(stats.errors.length).toEqual(0);
             expect(stats.warnings.length).toEqual(0);
         });
 
         it("ignores module.exports references", async () => {
-            let compiler = webpack({
+            const compiler = webpack({
                 mode: "development",
                 entry: path.join(__dirname, "deps", "self-referencing", "uses-exports.js"),
                 output: { path: "/tmp" },
@@ -312,15 +312,15 @@ describe("RspackCircularDependencyPlugin", () => {
             });
             compiler.outputFileSystem = fs;
 
-            let runAsync = wrapRun(compiler.run.bind(compiler));
-            let stats = await runAsync();
+            const runAsync = wrapRun(compiler.run.bind(compiler));
+            const stats = await runAsync();
 
             expect(stats.errors.length).toEqual(0);
             expect(stats.warnings.length).toEqual(0);
         });
 
         it("ignores self references", async () => {
-            let compiler = webpack({
+            const compiler = webpack({
                 mode: "development",
                 entry: path.join(__dirname, "deps", "self-referencing", "imports-self.js"),
                 output: { path: "/tmp" },
@@ -328,15 +328,15 @@ describe("RspackCircularDependencyPlugin", () => {
             });
             compiler.outputFileSystem = fs;
 
-            let runAsync = wrapRun(compiler.run.bind(compiler));
-            let stats = await runAsync();
+            const runAsync = wrapRun(compiler.run.bind(compiler));
+            const stats = await runAsync();
 
             expect(stats.warnings.length).toEqual(0);
             expect(stats.errors.length).toEqual(0);
         });
 
         it("works with typescript", async () => {
-            let compiler = webpack({
+            const compiler = webpack({
                 mode: "development",
                 entry: path.join(__dirname, "deps", "ts", "a.tsx"),
                 output: { path: "/tmp" },
@@ -360,8 +360,8 @@ describe("RspackCircularDependencyPlugin", () => {
             });
             compiler.outputFileSystem = fs;
 
-            let runAsync = wrapRun(compiler.run.bind(compiler));
-            let stats = await runAsync();
+            const runAsync = wrapRun(compiler.run.bind(compiler));
+            const stats = await runAsync();
 
             expect(stats.errors.length).toEqual(0);
             expect(stats.warnings.length).toEqual(0);
