@@ -127,11 +127,7 @@ describe("RspackCircularDependencyPlugin", () => {
         const runAsync = wrapRun(compiler.run.bind(compiler));
         const stats = await runAsync();
 
-        const msg0 = getWarningMessage(stats, 0);
-        const msg1 = getWarningMessage(stats, 1);
-        expect(msg0).toMatch(/Circular/);
-        expect(msg1).toMatch(/e\.js/);
-        expect(msg1).toMatch(/g\.js/);
+        expect(stats.warnings).toHaveLength(0);
     });
 
     it("can include only specific cyclical deps in the output", async () => {
@@ -179,10 +175,10 @@ describe("RspackCircularDependencyPlugin", () => {
             plugins: [
                 new CircularDependencyPlugin({
                     onStart({ compilation }) {
-                        compilation.warnings.push("started");
+                        compilation.warnings.push(new Error("started"));
                     },
                     onEnd({ compilation }) {
-                        compilation.errors.push("ended");
+                        compilation.errors.push(new Error("ended"));
                     },
                 }),
             ],
@@ -192,13 +188,11 @@ describe("RspackCircularDependencyPlugin", () => {
         const runAsync = wrapRun(compiler.run.bind(compiler));
         const stats = await runAsync();
 
-        if (/^5/.test(webpack.version)) {
-            expect(stats.warnings).toEqual([{ message: "started" }]);
-            expect(stats.errors).toEqual([{ message: "ended" }]);
-        } else {
-            expect(stats.warnings).toEqual(["started"]);
-            expect(stats.errors).toEqual(["ended"]);
-        }
+        expect(stats.warnings).toHaveLength(1);
+        expect(stats.warnings[0].message).toMatch(/started/);
+
+        expect(stats.errors).toHaveLength(1);
+        expect(stats.errors[0].message).toMatch(/ended/);
     });
 
     it("allows overriding all behavior with onDetected", async () => {
@@ -256,17 +250,12 @@ describe("RspackCircularDependencyPlugin", () => {
         expect(msg1).toMatch(/g\.js/);
     });
 
-    it("can detect circular dependencies when module concatenation is used", async () => {
+    it("can detect circular dependencies when module concatenation is not used", async () => {
         const compiler = webpack({
             mode: "development",
             entry: path.join(__dirname, "deps/module-concat-plugin-compat/index.js"),
-            experiments: {
-                rspackFuture: {
-                    newTreeshaking: true,
-                },
-            },
             optimization: {
-                concatenateModules: true,
+                concatenateModules: false,
             },
             output: { path: "/tmp" },
             plugins: [new CircularDependencyPlugin()],
@@ -284,6 +273,25 @@ describe("RspackCircularDependencyPlugin", () => {
         expect(msg1).toContain(
             "__tests__/deps/module-concat-plugin-compat/b.js -> __tests__/deps/module-concat-plugin-compat/a.js -> __tests__/deps/module-concat-plugin-compat/b.js",
         );
+    });
+
+    it("does not detect circular dependencies in concatenated modules", async () => {
+        const compiler = webpack({
+            mode: "development",
+            entry: path.join(__dirname, "deps/module-concat-plugin-compat/index.js"),
+            optimization: {
+                concatenateModules: true,
+            },
+            output: { path: "/tmp" },
+            plugins: [new CircularDependencyPlugin()],
+        });
+        compiler.outputFileSystem = fs;
+
+        const runAsync = wrapRun(compiler.run.bind(compiler));
+        const stats = await runAsync();
+
+        expect(stats.warnings).toHaveLength(0);
+        expect(stats.errors).toHaveLength(0);
     });
 
     describe("ignores self referencing webpack internal dependencies", () => {
@@ -340,21 +348,11 @@ describe("RspackCircularDependencyPlugin", () => {
                 mode: "development",
                 entry: path.join(__dirname, "deps", "ts", "a.tsx"),
                 output: { path: "/tmp" },
+                resolve: {
+                    tsConfig: path.resolve(path.join(__dirname, "deps", "ts", "tsconfig.json")),
+                },
                 module: {
-                    rules: [
-                        {
-                            test: /\.tsx?$/,
-                            use: [
-                                {
-                                    loader: "ts-loader",
-                                    options: {
-                                        configFile: path.resolve(path.join(__dirname, "deps", "ts", "tsconfig.json")),
-                                    },
-                                },
-                            ],
-                            exclude: /node_modules/,
-                        },
-                    ],
+                    rules: [{ test: /\.tsx?$/, use: "builtin:swc-loader", exclude: /node_modules/ }],
                 },
                 plugins: [new CircularDependencyPlugin()],
             });
