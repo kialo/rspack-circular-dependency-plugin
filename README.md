@@ -1,3 +1,6 @@
+# This repository is no longer developed
+rspack has its own version of this plugin since v1.3.0, see [here](https://rspack.dev/plugins/rspack/circular-dependency-rspack-plugin).
+
 # Circular Dependency Plugin
 
 Note that this is a rudimentary re-implementation of `circular-dependency-plugin` to fulfill our needs at Kialo.
